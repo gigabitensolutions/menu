@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin – Mar Doce Lar (Demo)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+  <div id="lock" class="lock" style="display:none">
+    <div class="box">
+      <h2>Entrar no Admin</h2>
+      <div class="small">Proteção por PIN (local). Para uso real, adote autenticação.</div>
+      <div id="lockFirst" class="small" style="margin:8px 0 4px;display:none">Defina um PIN inicial:</div>
+      <input id="pinInput" type="password" placeholder="PIN" style="width:100%">
+      <div class="flex" style="justify-content:flex-end;margin-top:10px">
+        <button id="pinConfirm" class="primary">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="display:none" id="app">
+    <div class="top">
+      <h1>Admin de Estoque – Mar Doce Lar <span class="small">overlay LocalStorage</span></h1>
+      <div class="toolbar">
+        <button id="btnExport" class="primary">Exportar JSON (merge)</button>
+        <button id="btnImport">Importar JSON → overlay</button>
+        <button id="btnExportHist">Exportar histórico (CSV)</button>
+        <button id="btnReset" class="warn">Resetar overlay</button>
+        <button id="btnChangePin">Definir novo PIN</button>
+        <button id="btnLock">Bloquear</button>
+      </div>
+    </div>
+
+    <div class="card controls">
+      <input type="search" id="q" placeholder="Buscar por nome...">
+      <input type="text" id="cat" placeholder="Categoria (ex.: Whisky, Vodka, Gin)" style="flex:1">
+      <select id="sort">
+        <option value="name-asc">Nome A→Z</option>
+        <option value="name-desc">Nome Z→A</option>
+        <option value="stock-asc">Estoque ↑</option>
+        <option value="stock-desc">Estoque ↓</option>
+        <option value="margin-desc">Maior margem %</option>
+        <option value="margin-asc">Menor margem %</option>
+      </select>
+      <div class="right" style="flex:1">
+        <button id="btnAdd" class="primary">Adicionar item</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <table class="table" aria-label="Tabela de estoque">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Categoria</th>
+              <th>Volume</th>
+              <th class="num">Preço</th>
+              <th class="num">Custo</th>
+              <th class="num">Margem</th>
+              <th class="num">Estoque</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="small" id="status">–</div>
+      </section>
+
+      <aside class="card">
+        <h3 style="margin:0 0 8px">Editor</h3>
+        <div id="editor">
+          <label>Nome<br><input id="f_nome" placeholder="Ex.: Whisky Jameson"/></label><br><br>
+          <label>Categoria<br><input id="f_categoria" placeholder="Ex.: Whisky"/></label><br><br>
+          <label>Volume<br><input id="f_volume" placeholder="Ex.: 750 ml"/></label><br><br>
+          <div>
+            <div class="small">Imagem (arraste & solte ou clique)</div>
+            <div id="drop" class="drop">Solte a imagem aqui ou clique</div>
+            <img id="preview" class="preview" alt="Preview" style="display:none;margin-top:8px"/>
+            <input id="f_imagem" placeholder="img/whisky-01.jpg" style="width:100%;margin-top:8px" />
+          </div><br>
+          <label>Estoque<br><input id="f_estoque" type="number" step="1" class="inline"/></label><br><br>
+          <div class="small">Promoção</div>
+          <div class="flex">
+            <label><input type="checkbox" id="f_promo"/> Em promoção</label>
+            <input id="f_destaque" placeholder="Texto do badge (ex.: Oferta do dia)"/>
+          </div><br>
+
+          <label><input type="checkbox" id="f_usar_tamanhos"/> Usar tamanhos (ex.: dose/garrafa)</label>
+          <div id="sizesWrap" style="display:none;">
+            <div class="small">Tamanhos e custos:</div>
+            <div class="flex">
+              <label>T1 R$ <input id="f_p_t1" type="number" step="0.01" class="inline" placeholder="Preço"/></label>
+              <label>Custo R$ <input id="f_c_t1" type="number" step="0.01" class="inline" placeholder="Custo"/></label>
+              <input id="f_l_t1" placeholder="Rótulo (ex.: Dose)"/>
+            </div>
+            <div class="flex">
+              <label>T2 R$ <input id="f_p_t2" type="number" step="0.01" class="inline"/></label>
+              <label>Custo R$ <input id="f_c_t2" type="number" step="0.01" class="inline"/></label>
+              <input id="f_l_t2" placeholder="Rótulo (ex.: Meia)"/>
+            </div>
+            <div class="flex">
+              <label>T3 R$ <input id="f_p_t3" type="number" step="0.01" class="inline"/></label>
+              <label>Custo R$ <input id="f_c_t3" type="number" step="0.01" class="inline"/></label>
+              <input id="f_l_t3" placeholder="Rótulo (ex.: Garrafa)"/>
+            </div>
+          </div>
+
+          <div id="priceWrap">
+            <div class="small">Preço e custo (fixo):</div>
+            <div class="flex">
+              <label>Preço R$ <input id="f_preco" type="number" step="0.01" class="inline"/></label>
+              <label>Custo R$ <input id="f_custo" type="number" step="0.01" class="inline"/></label>
+            </div>
+          </div>
+
+          <hr/>
+          <div class="right">
+            <button id="btnSave" class="primary">Salvar</button>
+            <button id="btnClear">Limpar</button>
+          </div>
+        </div>
+        <hr/>
+        <div class="small">Este admin altera apenas o <strong>overlay</strong> (LocalStorage). Use “Exportar JSON” para consolidar no repositório.</div>
+      </aside>
+    </div>
+
+    <footer>Leitura de <span class="kbd">data/produtos.json</span> + overlay em <span class="kbd">localStorage</span>.</footer>
+  </div>
+
+  <!-- Modal: Histórico -->
+  <div id="histModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="histTitle">
+    <div class="modal-card">
+      <h3 id="histTitle">Histórico</h3>
+      <div class="small" id="histSub">Movimentações</div>
+      <table class="table-compact" id="histTable">
+        <thead><tr><th>Data/Hora</th><th>Ação</th><th>Δ</th><th>De→Para</th><th>Nota</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="right" style="margin-top:10px">
+        <button id="btnHistExport">Exportar CSV</button>
+        <button id="btnHistClear" class="warn">Limpar histórico</button>
+        <button id="btnHistClose" class="primary">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

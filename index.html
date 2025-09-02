@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu - Mar Doce Lar</title>
+  <meta name="description" content="Cardápio digital de bebidas com pagamento por PIX via QR Code." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1220; --bg2:#0e162a;
+      --card:#10192f; --card2:#0d1529;
+      --border:#1e2a44; --text:#e6edf3; --muted:#9fb0c6;
+      --accent:#22d3ee; --accent2:#7c3aed;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans',sans-serif;color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% -10%, #16243e 0%, transparent 40%),
+        radial-gradient(1000px 600px at 85% -20%, #102139 0%, transparent 45%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 70%);
+    }
+    header{position:relative}
+    .hero-wrap{max-width:1100px;margin:auto;padding:36px 20px 8px}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit;}
+    .logo{width:54px; height:54px; border-radius:16px; background:conic-gradient(from 180deg,var(--accent),var(--accent2)); box-shadow:0 10px 30px #22d3ee30; display:inline-block; overflow:hidden; border:1px solid var(--border);}
+    .logo img{ width:100%; height:100%; display:block; object-fit:contain; border-radius:inherit; background:#0b1220; }
+    @media (max-width:480px){ h1{ font-size:22px; } }
+    h1{margin:0;font-size:28px;letter-spacing:.3px}
+    .wave{position:relative;margin-top:18px}
+    .wave svg{display:block;width:100%;height:auto}
+    main{max-width:1100px;margin:18px auto 0;padding:0 20px}
+    .grid{display:grid;gap:16px;grid-template-columns:1fr}
+    @media(min-width:560px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
+    .card{ position:relative;background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 12px 26px #00000040 }
+    .hero-img{ position:relative;background:#0f1830; aspect-ratio: 4 / 3; }
+    .hero-img img{ width:100%;height:100%;object-fit:cover;opacity:.92;display:block }
+    .badge{position:absolute;top:10px;left:10px;padding:6px 10px;border-radius:999px;background:#0c152b;border:1px solid var(--border);font-size:11px;color:var(--muted)}
+    .badge.promo{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0b0f1b;border:0;font-weight:700}
+    .badge.out{ background:#3b0d0d;border-color:#7f1d1d;color:#fecaca;font-weight:800; text-transform:uppercase;letter-spacing:.3px; }
+    .content{padding:14px 14px 16px}
+    .title{margin:4px 0 6px;font-size:16px}
+    .meta{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap}
+    .price{margin:12px 0 10px;font-size:18px;font-weight:800;letter-spacing:.2px}
+    .btns{display:flex;gap:10px}
+    .btn{ flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px; padding:10px 12px;border-radius:12px;font-weight:700;font-size:14px; cursor:pointer;text-decoration:none;border:1px solid var(--border); background:#0c152b;color:var(--text)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;color:#0b0f1b}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.disabled{opacity:.45;cursor:not-allowed;pointer-events:none;filter:saturate(.6)}
+    footer{max-width:1100px;margin:40px auto 80px;padding:0 20px;color:var(--muted);font-size:12px}
+    .notice{border:1px dashed var(--border);padding:12px 14px;border-radius:14px;background:#0c152b}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0007;z-index:50}
+    .modal-card{width:min(560px,92vw);background:#0c152b;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 10px 30px #00000066}
+    .modal h3{margin:0 0 12px}
+    .field{width:100%;margin-top:6px;background:#0b1220;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px}
+    .qr-img{ width:min(360px, 100%); aspect-ratio: 1 / 1; height:auto; border-radius:12px;border:1px solid var(--border);background:#0b1220;object-fit:contain;display:block }
+    .inline-ok{ opacity:0; transform: translateY(2px); transition: opacity .18s ease, transform .18s ease; font-size:12px; color: var(--muted); }
+    .inline-ok.show{ opacity:1; transform: translateY(0); }
+    .btns-pix{ display:flex; gap:10px; align-items:flex-start; } .btns-pix .btn{ flex:0 0 auto; }
+    .copy-wrap{ display:flex; flex-direction:column; gap:6px; align-items:flex-start; } .btn-copy{ padding:12px 18px; font-size:15px; font-weight:800; }
+    .btn-close{ padding:10px 12px; font-size:14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero-wrap">
+      <div class="topbar">
+        <a class="brand" href="./" aria-label="Início">
+          <span class="logo"><img src="img/logo-praia.svg" alt="Mar Doce Lar" onerror="this.style.display='none'"></span>
+          <h1>Bebidas - Mar Doce Lar</h1>
+        </a>
+      </div>
+    </div>
+    <div class="wave" aria-hidden="true">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,80 C240,140 480,20 720,60 C960,100 1200,120 1440,60 L1440,120 L0,120 Z" fill="#0e162a"></path></svg>
+    </div>
+  </header>
+
+  <!-- Modal QR PIX -->
+  <div id="pixQrModal" class="modal">
+    <div class="modal-card">
+      <h3 id="pixTitle">Pagar com PIX</h3>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <img id="pixQrImg" class="qr-img" alt="QR Code PIX"/>
+        <div style="flex:1;min-width:220px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Copia e Cola</div>
+          <textarea id="pixCopiaCola" readonly class="field" style="min-height:120px"></textarea>
+          <div class="btns-pix" style="margin-top:10px">
+            <div class="copy-wrap">
+              <button id="btnCopy" class="btn btn-copy">Copiar</button>
+              <span id="copyMsg" class="inline-ok" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true">Copiado!</span>
+            </div>
+            <button id="closeQr" class="btn btn-close" style="margin-left:auto">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <footer>
+    <div class="notice">⚠️ Vendas apenas para maiores de 18 anos. Beba com moderação. Preços sujeitos a alteração e disponibilidade. Imagem ilustrativa.</div>
+  </footer>
+
+  <script>
+    // ================== CONFIG PIX ==================
+    const PIX_KEY = 'edab0cd5-ecd4-4050-87f7-fbaf98899713';
+    const RECEIVER_NAME = 'CASA DE PRAIA';
+    const RECEIVER_CITY = 'BRASIL';
+
+    // ================== OVERLAY STORAGE ==================
+    const DEMO_KEY = 'mdl-overlay-v1';
+    const DELETED_KEY = 'mdl-deleted-v1';
+
+    function loadOverlay(){ const arr = JSON.parse(localStorage.getItem(DEMO_KEY) || '[]'); const del = JSON.parse(localStorage.getItem(DELETED_KEY) || '[]'); return { arr, del }; }
+    function saveOverlay(arr, del){ localStorage.setItem(DEMO_KEY, JSON.stringify(arr)); localStorage.setItem(DELETED_KEY, JSON.stringify(del)); }
+
+    // ================== DATA LOAD (JSON + overlay) ==================
+    async function fetchBase(){
+      const res = await fetch('data/produtos.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Falha ao carregar data/produtos.json');
+      return await res.json();
+    }
+    async function getProdutos(){
+      const base = await fetchBase();
+      const { arr, del } = loadOverlay();
+      const map = new Map(base.map(p => [p.id, p]));
+      del.forEach(id => map.delete(id));
+      arr.forEach(p => map.set(p.id, p));
+      return Array.from(map.values());
+    }
+
+    // ================== RENDER ==================
+    const grid = document.getElementById('grid');
+    function currency(v){ return Number(v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) }
+
+    function cardHTML(p){
+      const semEstoque = Number(p.estoque) === 0;
+      let badgeHtml = '';
+      if (semEstoque)      badgeHtml = `<span class="badge out">Sem estoque</span>`;
+      else if (p.promo || p.destaque) badgeHtml = `<span class="badge promo">${p.destaque || 'Promo'}</span>`;
+      else                   badgeHtml = `<span class="badge">${p.categoria}</span>`;
+
+      const btnPix = semEstoque
+        ? `<button class="btn primary disabled" aria-disabled="true" title="Sem estoque">PAGUE COM PIX</button>`
+        : `<a class="btn primary" href="#" onclick="abrirPix('${encodeURIComponent(p.id)}','${encodeURIComponent(p.nome)}','${encodeURIComponent(p.volume||'')}', ${p.preco})">PAGUE COM PIX</a>`;
+
+      const imgSrc = (p.imagem || 'img/placeholder.jpg');
+
+      return `
+        <article class="card" data-id="${p.id}" data-nome="${p.nome.replace(/"/g,'&quot;')}" data-volume="${(p.volume||'').replace(/"/g,'&quot;')}" data-preco="${p.preco}">
+          <div class="hero-img">
+            <img src="${imgSrc}" alt="${p.nome} ${p.volume||''}" loading="lazy" onerror="this.onerror=null;this.src='img/placeholder.jpg'"/>
+            ${badgeHtml}
+          </div>
+          <div class="content">
+            <h2 class="title">${p.nome}</h2>
+            <div class="meta">
+              ${p.volume?`<span>Volume: ${p.volume}</span><span>•</span>`:''}<span>Categoria: ${p.categoria}</span>
+              ${typeof p.estoque === 'number' ? `<span>•</span><span>Estoque: ${p.estoque}</span>` : '' }
+            </div>
+            <div class="price">${currency(p.preco)}</div>
+            <div class="btns">
+              ${btnPix}
+            </div>
+          </div>
+        </article>`;
+    }
+    function render(list){ grid.innerHTML = list.map(cardHTML).join('') }
+
+    // ================== PIX ==================
+    const qrModal=document.getElementById('pixQrModal'), qrImg=document.getElementById('pixQrImg'), copiaCola=document.getElementById('pixCopiaCola'), pixTitle=document.getElementById('pixTitle'), btnCopy=document.getElementById('btnCopy'), closeQr=document.getElementById('closeQr'), copyMsg=document.getElementById('copyMsg');
+
+    function abrirPix(idEnc, nomeEnc, volumeEnc, preco){
+      const nome = decodeURIComponent(nomeEnc);
+      const volume = decodeURIComponent(volumeEnc);
+      const id = decodeURIComponent(idEnc);
+      const txid = (id.slice(0,20) + Date.now().toString().slice(-5)).slice(0,25);
+      const descr = (nome + (volume?(' '+volume):'')).slice(0,50);
+      const payload = montarPix(PIX_KEY, RECEIVER_NAME, RECEIVER_CITY, preco, txid, descr);
+      mostrarQrPix(`${nome} — ${currency(preco)}`, payload);
+    }
+
+    function mostrarQrPix(titulo, payload){
+      pixTitle.textContent = titulo; copiaCola.value = payload;
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&data=${encodeURIComponent(payload)}`;
+      if (copyMsg){ copyMsg.classList.remove('show'); copyMsg.setAttribute('aria-hidden','true'); copyMsg.textContent = 'Copiado!'; }
+      btnCopy.textContent = 'Copiar'; qrModal.style.display='flex';
+    }
+    closeQr.addEventListener('click', ()=> qrModal.style.display='none');
+    btnCopy.addEventListener('click', async () => {
+      const txt = copiaCola.value; const original = btnCopy.textContent;
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(txt);
+        else { copiaCola.select(); document.execCommand('copy'); window.getSelection().removeAllRanges(); }
+        btnCopy.textContent = 'Copiado ✓'; copyMsg.textContent = 'PIX copiado'; copyMsg.classList.add('show'); copyMsg.setAttribute('aria-hidden','false');
+        if ('vibrate' in navigator) navigator.vibrate(15);
+        setTimeout(() => { btnCopy.textContent = original; copyMsg.classList.remove('show'); copyMsg.setAttribute('aria-hidden','true'); }, 1500);
+      } catch (e) {
+        copyMsg.textContent = 'Não foi possível copiar'; copyMsg.classList.add('show'); copyMsg.setAttribute('aria-hidden','false');
+        setTimeout(() => { copyMsg.classList.remove('show'); copyMsg.setAttribute('aria-hidden','true'); copyMsg.textContent = 'Copiado!'; }, 2000);
+      }
+    });
+
+    // Helpers Pix
+    function toAscii(s){ return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9 \-\.]/g,''); }
+    function byteLen(s){ return new TextEncoder().encode(s).length }
+    function cutBytes(s,max){ let t=toAscii(s); while(byteLen(t)>max){ t=t.slice(0,-1) } return t }
+    function montarPix(chave, nome, cidade, valor, txid, descricao){
+      const NOME = cutBytes(nome||'HOSPEDE',25); const CIDADE = cutBytes(cidade||'BRASIL',15); const TXID = toAscii((txid||'CARDAPIO')).slice(0,25); const DESC = descricao ? toAscii(descricao).slice(0,50) : '';
+      const KEY = (chave||'').trim(); function tlv(id,value){ const len = byteLen(value).toString().padStart(2,'0'); return id + len + value }
+      const gui = tlv('26', tlv('00','br.gov.bcb.pix') + tlv('01', KEY) + (DESC ? tlv('02', DESC) : ''));
+      const payloadSemCRC = tlv('00','01') + tlv('01','11') + gui + tlv('52','0000') + tlv('53','986') + (valor ? tlv('54', Number(valor).toFixed(2)) : '') + tlv('58','BR') + tlv('59', NOME) + tlv('60', CIDADE) + tlv('62', tlv('05', TXID)) + '6304';
+      const crc = crc16(payloadSemCRC).toUpperCase(); return payloadSemCRC + crc;
+    }
+    function crc16(str){ let crc=0xFFFF; for(let i=0;i<str.length;i++){ crc ^= str.charCodeAt(i)<<8; for(let j=0;j<8;j++){ if(crc & 0x8000){ crc=(crc<<1)^0x1021 } else { crc=(crc<<1) } crc &= 0xFFFF } } return crc.toString(16).padStart(4,'0') }
+
+    // Boot
+    (async ()=>{ render(await getProdutos()); })();
+  </script>
+</body>
+</html>

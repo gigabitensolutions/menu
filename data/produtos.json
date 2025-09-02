@@ -1,0 +1,105 @@
+[
+  {
+    "id": "jameson750",
+    "nome": "Whisky Jameson",
+    "volume": "750 ml",
+    "preco": 160.0,
+    "categoria": "Whisky",
+    "imagem": "img/whisky-01.jpg",
+    "destaque": "Mais vendido",
+    "estoque": 8,
+    "custo": 95.0
+  },
+  {
+    "id": "absolut1l",
+    "nome": "Vodka Absolut",
+    "volume": "1 L",
+    "preco": 160.0,
+    "categoria": "Vodka",
+    "imagem": "img/vodka-absolute.jpg",
+    "estoque": 6,
+    "custo": 92.0,
+    "promo": true
+  },
+  {
+    "id": "redlabel1l",
+    "nome": "Whisky Johnnie Walker Red Label",
+    "volume": "1 L",
+    "preco": 105.0,
+    "categoria": "Whisky",
+    "imagem": "img/whisky-02.jpg",
+    "destaque": "Oferta do dia",
+    "estoque": 0,
+    "custo": 78.0
+  },
+  {
+    "id": "smirnoff1l",
+    "nome": "Vodka Smirnoff",
+    "volume": "1 L",
+    "preco": 69.9,
+    "categoria": "Vodka",
+    "imagem": "img/vodka-smirnoff.jpg",
+    "estoque": 9,
+    "custo": 45.0
+  },
+  {
+    "id": "tanqueray750",
+    "nome": "Gin Tanqueray",
+    "volume": "750 ml",
+    "preco": 139.9,
+    "categoria": "Gin",
+    "imagem": "img/gin-tanqueray-01.jpg",
+    "estoque": 5,
+    "custo": 88.0
+  },
+  {
+    "id": "gordons750",
+    "nome": "Gin Gordon's",
+    "volume": "750 ml",
+    "preco": 89.9,
+    "categoria": "Gin",
+    "imagem": "img/gin-bottle-01.jpg",
+    "estoque": 7,
+    "custo": 54.0
+  },
+  {
+    "id": "tequilaJose",
+    "nome": "Tequila Jose Cuervo Gold",
+    "volume": "750 ml",
+    "preco": 149.9,
+    "categoria": "Tequila",
+    "imagem": "img/tequila-cuervo-01.jpg",
+    "estoque": 4,
+    "custo": 96.0
+  },
+  {
+    "id": "rumBacardi",
+    "nome": "Rum Bacardí Carta Blanca",
+    "volume": "980 ml",
+    "preco": 79.9,
+    "categoria": "Rum",
+    "imagem": "img/rum-bacardi-01.jpg",
+    "estoque": 10,
+    "custo": 50.0
+  },
+  {
+    "id": "tonica",
+    "nome": "Água Tônica",
+    "volume": "350 ml (lata)",
+    "preco": 7.0,
+    "categoria": "Sem alcool",
+    "imagem": "img/tonica-01.jpg",
+    "estoque": 30,
+    "custo": 3.8
+  },
+  {
+    "id": "energetico",
+    "nome": "Energético",
+    "volume": "473 ml",
+    "preco": 12.0,
+    "categoria": "Sem alcool",
+    "imagem": "img/energetico-redbull-01.jpg",
+    "estoque": 16,
+    "custo": 7.5
+  }
+]
