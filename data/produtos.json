@@ -7,7 +7,7 @@
     "categoria": "Whisky",
     "imagem": "img/whisky-01.jpg",
     "destaque": "Mais vendido",
-    "estoque": 8,
+    "estoque": 1,
     "custo": 95.0
   },
   {
@@ -17,7 +17,7 @@
     "preco": 160.0,
     "categoria": "Vodka",
     "imagem": "img/vodka-absolute.jpg",
-    "estoque": 6,
+    "estoque": 1,
     "custo": 92.0,
     "promo": true
   },
@@ -29,7 +29,7 @@
     "categoria": "Whisky",
     "imagem": "img/whisky-02.jpg",
     "destaque": "Oferta do dia",
-    "estoque": 0,
+    "estoque": 1,
     "custo": 78.0
   },
   {
@@ -39,7 +39,7 @@
     "preco": 69.9,
     "categoria": "Vodka",
     "imagem": "img/vodka-smirnoff.jpg",
-    "estoque": 9,
+    "estoque": 1,
     "custo": 45.0
   },
   {
@@ -49,7 +49,7 @@
     "preco": 139.9,
     "categoria": "Gin",
     "imagem": "img/gin-tanqueray-01.jpg",
-    "estoque": 5,
+    "estoque": 1,
     "custo": 88.0
   },
   {
@@ -59,7 +59,7 @@
     "preco": 89.9,
     "categoria": "Gin",
     "imagem": "img/gin-bottle-01.jpg",
-    "estoque": 7,
+    "estoque": 1,
     "custo": 54.0
   },
   {
@@ -69,7 +69,7 @@
     "preco": 149.9,
     "categoria": "Tequila",
     "imagem": "img/tequila-cuervo-01.jpg",
-    "estoque": 4,
+    "estoque": 1,
     "custo": 96.0
   },
   {
@@ -79,7 +79,7 @@
     "preco": 79.9,
     "categoria": "Rum",
     "imagem": "img/rum-bacardi-01.jpg",
-    "estoque": 10,
+    "estoque": 1,
     "custo": 50.0
   },
   {
@@ -89,7 +89,7 @@
     "preco": 7.0,
     "categoria": "Sem alcool",
     "imagem": "img/tonica-01.jpg",
-    "estoque": 30,
+    "estoque": 1,
     "custo": 3.8
   },
   {
@@ -99,7 +99,7 @@
     "preco": 12.0,
     "categoria": "Sem alcool",
     "imagem": "img/energetico-redbull-01.jpg",
-    "estoque": 16,
+    "estoque": 1,
     "custo": 7.5
   }
 ]
