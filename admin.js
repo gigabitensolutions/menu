@@ -113,7 +113,7 @@ let selId = null;
 function currency(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) }
 function norm(s){ return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
 function basePrice(p){ return p.tamanhos?.length ? Math.min(...p.tamanhos.map(t=>t.preco)) : (p.preco ?? 0); }
-function baseCost(p){ return p.tamanhos?.length ? (p.custos||[]).map(c=>c.custo).filter(x=>typeof x==='number').reduce((m,v)=>Math.min(m,v),Infinity) : Number(p.custo || 0); }
+function baseCost(p){ if (p.tamanhos?.length){ const arr=(p.custos||[]).map(c=>c.custo).filter(x=>typeof x==='number'); return arr.length? Math.min(...arr) : 0; } return Number(p.custo||0); }
 function marginPct(p){ const price = basePrice(p), cost = baseCost(p)||0; if (!price) return 0; return ((price - cost)/price)*100; }
 
 function applyFilters(items){
@@ -311,7 +311,68 @@ document.getElementById('btnImport').addEventListener('click', ()=>{
 document.getElementById('btnReset').addEventListener('click', ()=>{ if (confirm('Limpar overlay (LocalStorage)?')){ resetOverlay(); boot(); } });
 
 // Boot
-let ITEMS = []; // redeclare to ensure visibility (already declared, but keep)
+// (removed duplicate) // let ITEMS = []; // redeclare to ensure visibility (already declared, but keep)
 async function boot(){ try{ ITEMS = await getMerged(); render(applyFilters(ITEMS)); if (selId){ const p = ITEMS.find(x => x.id === selId); if (p) fillEditor(p); } } catch (e){ tbody.innerHTML = `<tr><td colspan="8">Erro: ${e.message}</td></tr>`; } }
 function render(items){ tbody.innerHTML = items.map(rowHTML).join(''); const edits = JSON.parse(localStorage.getItem(DEMO_KEY)||'[]').length; statusEl.textContent = `${items.length} itens • overlay: ${edits} edit(s)`; }
 boot();
+
+// ====== Report (by category) ======
+const repModal = document.getElementById('reportModal');
+const repTable = document.getElementById('repTable').querySelector('tbody');
+const repSub = document.getElementById('repSub');
+const btnRepClose = document.getElementById('btnRepClose');
+const btnRepExport = document.getElementById('btnRepExport');
+
+function basePrice(p){ return p.tamanhos?.length ? Math.min(...p.tamanhos.map(t=>t.preco)) : (p.preco ?? 0); }
+function baseCost(p){ if (p.tamanhos?.length){ const arr=(p.custos||[]).map(c=>c.custo).filter(x=>typeof x==='number'); return arr.length? Math.min(...arr) : 0; } return Number(p.custo||0); }
+
+function buildReport(items){
+  const map = new Map();
+  for (const p of items){
+    const cat = p.categoria || '—';
+    const price = Number(basePrice(p)||0);
+    const cost = Number(baseCost(p)||0);
+    const est = Number(p.estoque||0);
+    const rec = est * price;
+    const ctt = est * cost;
+    const mar = rec - ctt;
+    const row = map.get(cat) || { itens:0, estoque:0, receita:0, custo:0, margem:0 };
+    row.itens += 1; row.estoque += est; row.receita += rec; row.custo += ctt; row.margem += mar;
+    map.set(cat, row);
+  }
+  return map;
+}
+
+function fmtBRL(v){ return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) }
+
+function openReport(items){
+  const map = buildReport(items);
+  let total = {itens:0, estoque:0, receita:0, custo:0, margem:0};
+  const rows = [];
+  for (const [cat, r] of map.entries()){
+    const mpct = r.receita ? (r.margem / r.receita * 100) : 0;
+    rows.push(`<tr><td>${cat}</td><td class="num">${r.itens}</td><td class="num">${r.estoque}</td><td class="num">${fmtBRL(r.receita)}</td><td class="num">${fmtBRL(r.custo)}</td><td class="num">${fmtBRL(r.margem)}</td><td class="num">${mpct.toFixed(1)}%</td></tr>`);
+    total.itens += r.itens; total.estoque += r.estoque; total.receita += r.receita; total.custo += r.custo; total.margem += r.margem;
+  }
+  const mpctT = total.receita ? (total.margem/total.receita*100) : 0;
+  rows.push(`<tr><td><strong>Total</strong></td><td class="num"><strong>${total.itens}</strong></td><td class="num"><strong>${total.estoque}</strong></td><td class="num"><strong>${fmtBRL(total.receita)}</strong></td><td class="num"><strong>${fmtBRL(total.custo)}</strong></td><td class="num"><strong>${fmtBRL(total.margem)}</strong></td><td class="num"><strong>${mpctT.toFixed(1)}%</strong></td></tr>`);
+  repTable.innerHTML = rows.join('');
+  repSub.textContent = `Categorias: ${map.size} • Itens: ${total.itens}`;
+  repModal.style.display = 'flex';
+
+  // wire export
+  btnRepExport.onclick = ()=>{
+    const lines = [['categoria','itens','estoque','receita','custo','margem','margem_%']];
+    for (const [cat, r] of map.entries()){
+      const mpct = r.receita ? (r.margem / r.receita * 100) : 0;
+      lines.push([cat, r.itens, r.estoque, r.receita, r.custo, r.margem, mpct.toFixed(2)]);
+    }
+    lines.push(['TOTAL', total.itens, total.estoque, total.receita, total.custo, total.margem, mpctT.toFixed(2)]);
+    const csv = lines.map(r => r.map(x => `"${String(x).replace(/"/g,'""')}"`).join(',')).join('\\n');
+    const blob = new Blob([csv], { type:'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download='relatorio-categorias.csv'; a.click(); URL.revokeObjectURL(url);
+  };
+}
+btnRepClose?.addEventListener('click', ()=> repModal.style.display = 'none');
+document.getElementById('btnReport')?.addEventListener('click', async ()=>{ try{ const items = await getMerged(); openReport(items); } catch(e){ alert('Erro ao gerar relatório: '+e.message); } });

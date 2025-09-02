@@ -27,6 +27,7 @@
         <button id="btnExport" class="primary">Exportar JSON (merge)</button>
         <button id="btnImport">Importar JSON → overlay</button>
         <button id="btnExportHist">Exportar histórico (CSV)</button>
+        <button id="btnReport" class="primary">Relatório por categoria</button>
         <button id="btnReset" class="warn">Resetar overlay</button>
         <button id="btnChangePin">Definir novo PIN</button>
         <button id="btnLock">Bloquear</button>
@@ -147,6 +148,21 @@
     </div>
   </div>
 
+    <!-- Modal: Relatório -->
+  <div id="reportModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="repTitle">
+    <div class="modal-card">
+      <h3 id="repTitle">Relatório por categoria</h3>
+      <div class="small" id="repSub">Projetado a partir de estoque × preço/custo</div>
+      <table class="table-compact" id="repTable">
+        <thead><tr><th>Categoria</th><th>Itens</th><th>Estoque</th><th>Receita</th><th>Custo</th><th>Margem</th><th>Margem %</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="right" style="margin-top:10px">
+        <button id="btnRepExport">Exportar CSV</button>
+        <button id="btnRepClose" class="primary">Fechar</button>
+      </div>
+    </div>
+  </div>
   <script src="admin.js"></script>
 </body>
 </html>

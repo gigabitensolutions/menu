@@ -34,6 +34,11 @@
     .wave svg{display:block;width:100%;height:auto}
     main{max-width:1100px;margin:18px auto 0;padding:0 20px}
     .grid{display:grid;gap:16px;grid-template-columns:1fr}
+    /* chips */
+    .controls{max-width:1100px;margin:8px auto 0;padding:0 20px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:#0c152b;color:var(--text);font-weight:700;cursor:pointer;font-size:12px}
+    .chip.active{outline:2px solid var(--accent);background:#0e162a}
     @media(min-width:560px){.grid{grid-template-columns:repeat(2,1fr)}}
     @media(min-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
     .card{ position:relative;background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 12px 26px #00000040 }
@@ -79,6 +84,10 @@
       <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,80 C240,140 480,20 720,60 C960,100 1200,120 1440,60 L1440,120 L0,120 Z" fill="#0e162a"></path></svg>
     </div>
   </header>
+
+  <section class="controls" aria-label="Categorias">
+    <div class="chips" id="catChips"></div>
+  </section>
 
   <!-- Modal QR PIX -->
   <div id="pixQrModal" class="modal">
@@ -135,6 +144,32 @@
       del.forEach(id => map.delete(id));
       arr.forEach(p => map.set(p.id, p));
       return Array.from(map.values());
+    }
+
+    // ================== CATEGORY FILTER ==================
+    let STATE = { cat: 'all' };
+    const catChips = document.createElement('div');
+
+    function buildChips(items){
+      const cont = document.getElementById('catChips');
+      if (!cont) return;
+      const cats = Array.from(new Set(items.map(p => p.categoria).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+      const all = ['Todos', ...cats];
+      cont.innerHTML = all.map((c,i)=>`<button class="chip ${i===0?'active':''}" data-cat="${i===0?'all':c}">${c}</button>`).join('');
+      cont.querySelectorAll('.chip').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          cont.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          STATE.cat = btn.dataset.cat;
+          // re-render with filter
+          (async ()=>{ const items = await getProdutos(); render(applyFilters(items)); })();
+        });
+      });
+    }
+
+    function applyFilters(list){
+      if (!list) return [];
+      return list.filter(p => STATE.cat==='all' || STATE.cat==='Todos' || (p.categoria===STATE.cat));
     }
 
     // ================== RENDER ==================
@@ -223,7 +258,7 @@
     function crc16(str){ let crc=0xFFFF; for(let i=0;i<str.length;i++){ crc ^= str.charCodeAt(i)<<8; for(let j=0;j<8;j++){ if(crc & 0x8000){ crc=(crc<<1)^0x1021 } else { crc=(crc<<1) } crc &= 0xFFFF } } return crc.toString(16).padStart(4,'0') }
 
     // Boot
-    (async ()=>{ render(await getProdutos()); })();
+    (async ()=>{ const items = await getProdutos(); buildChips(items); render(applyFilters(items)); })();
   </script>
 </body>
 </html>
