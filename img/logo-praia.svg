@@ -1,13 +1,142 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title desc">
+  <title id="title">Logo Praia Detalhado</title>
+  <desc id="desc">Ilha com palmeira, sol com brilho, ondas em camadas e guarda-sol estilizado, em estilo vetorial para fundos escuros.</desc>
   <defs>
-    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#7c3aed"/>
+    <!-- Gradientes principais -->
+    <linearGradient id="gSun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE59A"/>
+      <stop offset="1" stop-color="#FF8A00"/>
     </linearGradient>
+    <radialGradient id="gGlow" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#FFD27A" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#FFD27A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gWave1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="gWave2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#18A4C2"/>
+      <stop offset="1" stop-color="#5B2BBE"/>
+    </linearGradient>
+    <linearGradient id="gSand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FCE7B2"/>
+      <stop offset="1" stop-color="#F4C06B"/>
+    </linearGradient>
+    <linearGradient id="gPalm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12D1A5"/>
+      <stop offset="1" stop-color="#0EA27E"/>
+    </linearGradient>
+    <linearGradient id="gTrunk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#996845"/>
+      <stop offset="1" stop-color="#7B4E34"/>
+    </linearGradient>
+    <linearGradient id="gUmbrella" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF6B6B"/>
+      <stop offset="1" stop-color="#FFA94D"/>
+    </linearGradient>
+
+    <!-- Efeito simples de sombra interna -> borda mais escura -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#a)" stroke="#1e2a44"/>
-  <g fill="#0b1220" transform="translate(8,10)">
-    <circle cx="24" cy="20" r="12"/>
-    <rect x="8" y="32" width="32" height="8" rx="4"/>
+
+  <!-- Halo do sol (transparente fora) -->
+  <circle cx="184" cy="58" r="58" fill="url(#gGlow)"/>
+
+  <!-- Sol -->
+  <circle cx="184" cy="58" r="26" fill="url(#gSun)"/>
+  <!-- Raios do sol -->
+  <g transform="translate(184,58)">
+    <g stroke="#FFC04D" stroke-width="3" stroke-linecap="round" opacity="0.9">
+      <line x1="0" y1="-38" x2="0" y2="-52"/>
+      <line x1="0" y1="38"  x2="0" y2="52"/>
+      <line x1="-38" y1="0" x2="-52" y2="0"/>
+      <line x1="38" y1="0"  x2="52" y2="0"/>
+      <line x1="-27" y1="-27" x2="-37" y2="-37"/>
+      <line x1="27" y1="27"   x2="37" y2="37"/>
+      <line x1="27" y1="-27"  x2="37" y2="-37"/>
+      <line x1="-27" y1="27"  x2="-37" y2="37"/>
+    </g>
   </g>
+
+  <!-- Ondas (camadas) -->
+  <path d="M0 174 C40 168 80 184 120 176 C160 168 200 184 256 176 L256 256 L0 256 Z"
+        fill="url(#gWave1)"/>
+  <path d="M0 188 C44 182 88 198 132 190 C176 182 220 198 256 190 L256 256 L0 256 Z"
+        fill="url(#gWave2)" opacity="0.9"/>
+  <path d="M0 202 C36 196 84 210 128 204 C176 198 220 212 256 206 L256 256 L0 256 Z"
+        fill="url(#gWave1)" opacity="0.75"/>
+  <!-- Espumas -->
+  <g fill="#E6F9FF" opacity="0.65">
+    <circle cx="36" cy="196" r="2.2"/><circle cx="44" cy="199" r="1.8"/>
+    <circle cx="76" cy="194" r="1.9"/><circle cx="92" cy="200" r="2.4"/>
+    <circle cx="138" cy="196" r="1.7"/><circle cx="154" cy="202" r="2.1"/>
+    <circle cx="194" cy="196" r="2.3"/><circle cx="212" cy="201" r="1.9"/>
+  </g>
+
+  <!-- Ilha (areia) -->
+  <ellipse cx="92" cy="184" rx="44" ry="16" fill="url(#gSand)" filter="url(#softShadow)"/>
+  <!-- Textura na areia -->
+  <g stroke="#E9BB6B" stroke-linecap="round" opacity="0.55">
+    <path d="M60 184 q8 3 16 0"/>
+    <path d="M76 188 q10 3 20 0"/>
+    <path d="M98 182 q10 3 16 0"/>
+  </g>
+
+  <!-- Tronco da palmeira -->
+  <g transform="translate(92,100)">
+    <path d="M-6 6 C-4 26 -2 58 -1 80 h10 c0-18 0-48 4-74 c1-6-1-10-4-14 c-6 4-7 5-9 8 z"
+          fill="url(#gTrunk)" filter="url(#softShadow)"/>
+    <!-- Segmentos do tronco -->
+    <g stroke="#5B3A26" stroke-width="2" opacity="0.45">
+      <path d="M-4 20 q5 -2 10 0"/>
+      <path d="M-3 30 q5 -2 10 0"/>
+      <path d="M-2 40 q5 -2 10 0"/>
+      <path d="M-1 50 q5 -2 10 0"/>
+      <path d="M0 60 q5 -2 10 0"/>
+      <path d="M1 70 q5 -2 10 0"/>
+    </g>
+
+    <!-- Folhas (frondes) -->
+    <g fill="url(#gPalm)" stroke="#0A7C60" stroke-width="1.5" stroke-linejoin="round">
+      <path d="M2 -2 C-28 -12 -54 -20 -78 -28 C-50 -22 -26 -16 6 -8 Z"/>
+      <path d="M2 -2 C 28 -12  54 -20  78 -28 C 50 -22  26 -16 -6 -8 Z"/>
+      <path d="M0 -4 C-18 -10 -30 -26 -40 -44 C-22 -30 -8 -18 6 -8 Z"/>
+      <path d="M0 -4 C 18 -10  30 -26  40 -44 C 22 -30  8 -18 -6 -8 Z"/>
+      <path d="M0 -2 C-6 -24 -6 -38 -2 -56 C 2 -38  4 -22  6 -8 Z"/>
+    </g>
+
+    <!-- Cocos -->
+    <g>
+      <circle cx="4" cy="6" r="5" fill="#5B3A26" stroke="#3D271B" stroke-width="1"/>
+      <circle cx="10" cy="10" r="4.5" fill="#5B3A26" stroke="#3D271B" stroke-width="1"/>
+      <circle cx="-2" cy="10" r="4.2" fill="#5B3A26" stroke="#3D271B" stroke-width="1"/>
+      <!-- Brilhos -->
+      <circle cx="6" cy="5" r="1.2" fill="#CFAF8E" opacity="0.8"/>
+      <circle cx="-1" cy="9" r="1" fill="#CFAF8E" opacity="0.7"/>
+    </g>
+  </g>
+
+  <!-- Guarda-sol na ilha -->
+  <g transform="translate(128,168)">
+    <path d="M0 0 v22" stroke="#6B7280" stroke-width="3" stroke-linecap="round"/>
+    <path d="M-22 0 a22 10 0 0 1 44 0 Z" fill="url(#gUmbrella)" stroke="#D9480F" stroke-width="1.5"/>
+    <!-- Listras -->
+    <path d="M-18 0 a18 8 0 0 1 36 0" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.65"/>
+    <path d="M-10 0 a10 5 0 0 1 20 0" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.65"/>
+    <!-- Sombra do guarda-sol -->
+    <ellipse cx="2" cy="14" rx="12" ry="3.5" fill="#000000" opacity="0.25"/>
+  </g>
+
+  <!-- Pássaros -->
+  <g fill="none" stroke="#E6EDF3" stroke-linecap="round" stroke-width="2" opacity="0.9">
+    <path d="M152 74 q6 -6 12 0"/>
+    <path d="M166 78 q6 -6 12 0"/>
+    <path d="M46 68 q6 -6 12 0"/>
+  </g>
+
+  <!-- Contorno leve opcional (ajuda em fundos muito claros). Deixe opacity=0 para transparente -->
+  <rect x="1" y="1" width="254" height="254" rx="20" ry="20" fill="none" stroke="#ffffff" opacity="0"/>
 </svg>
