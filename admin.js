@@ -629,6 +629,9 @@ function importarProdutosJSON() {
       if (!Array.isArray(data)) return toast("O arquivo deve conter um array JSON de produtos.");
       await apiFetch(`/import`, { method: "POST", body: JSON.stringify(data) });
       toast("Importação concluída.");
+      $("#q").value = "";
+      $("#cat").value = "";
+      $("#sort").value = "name-asc";
       await carregarEExibir();
     } catch (err) {
       console.error(err);
