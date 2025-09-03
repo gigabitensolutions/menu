@@ -1,10 +1,18 @@
+/* ==== Runtime config para facilitar ===== */
+(function runtimeConfig(){
+  const qs = new URLSearchParams(location.search);
+  const apiParam   = qs.get("api");
+  const tokenParam = qs.get("token");
 
-/* ===========================================================
-   Admin – Mar Doce Lar (Demo)
-   admin.js – CRUD via FastAPI (sem LocalStorage)
-   =========================================================== */
+  if (apiParam)   localStorage.setItem("mdlar_api_base", apiParam.replace(/\/+$/,""));
+  if (tokenParam) sessionStorage.setItem("adminToken", tokenParam);
 
-const API_BASE = "http://143.198.115.70:8000"; // <-- ajuste aqui (ex.: https://api.seudominio)
+  const savedApi = localStorage.getItem("mdlar_api_base");
+  // Se quiser, comente a próxima linha e defina o fallback fixo:
+  window.__API_BASE = savedApi || window.__API_BASE || "http://143.198.115.70:8000";
+})();
+
+let API_BASE = window.__API_BASE;      // usa runtime config
 let API_TOKEN = "Wr47VMXY6Caly9VTFt0MYCXy0O2osL6A"; // token (PIN) em memória
 
 /* ============== Utilidades ============== */
@@ -67,7 +75,7 @@ async function apiFetch(path, opts = {}) {
 
   let res;
   try {
-    res = await fetch(API_BASE + path, { ...opts, headers });
+    res = await fetch(API_BASE + path, { cache: "no-store", ...opts, headers });
   } catch (netErr) {
     throw new Error(
       `Falha de rede ao acessar ${API_BASE}${path}. ` +
