@@ -1,5 +1,11 @@
+
+/* ===========================================================
+   Admin – Mar Doce Lar (Demo)
+   admin.js – CRUD via FastAPI (sem LocalStorage)
+   =========================================================== */
+
 const API_BASE = "http://143.198.115.70:8000"; // <-- ajuste aqui (ex.: https://api.seudominio)
-let API_TOKEN = "Wr47VMXY6Caly9VTFt0MYCXy0O2osL6A";                   // token (PIN) em memória
+let API_TOKEN = "Wr47VMXY6Caly9VTFt0MYCXy0O2osL6A"; // token (PIN) em memória
 
 /* ============== Utilidades ============== */
 const $ = (sel) => document.querySelector(sel);
@@ -9,21 +15,16 @@ const fmtBRL = (v) =>
   (typeof v === "number" ? v : Number(v || 0))
     .toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-const fmtPct = (v) =>
-  (v == null ? "—" : `${Number(v).toFixed(2)}%`);
+const fmtPct = (v) => (v == null ? "—" : `${Number(v).toFixed(2)}%`);
 
 const isoToLocal = (iso) => {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleString("pt-BR");
-  } catch {
-    return iso;
-  }
+  try { return new Date(iso).toLocaleString("pt-BR"); }
+  catch { return iso; }
 };
 
 function toast(msg) {
-  // simples: usa alert; troque por seu sistema de toast se quiser
   console.log(msg);
+  // Troque por um toast visual se quiser:
   // alert(msg);
 }
 
@@ -64,68 +65,97 @@ async function apiFetch(path, opts = {}) {
   }
   if (API_TOKEN) headers.set("Authorization", "Bearer " + API_TOKEN);
 
-  const res = await fetch(API_BASE + path, { ...opts, headers });
+  let res;
+  try {
+    res = await fetch(API_BASE + path, { ...opts, headers });
+  } catch (netErr) {
+    throw new Error(
+      `Falha de rede ao acessar ${API_BASE}${path}. ` +
+      `Verifique se a API está online, CORS liberado e se não há bloqueio por HTTPS/HTTP (mixed content).`
+    );
+  }
+
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`API ${res.status}: ${text || res.statusText}`);
+    const msg = text || res.statusText || "Erro desconhecido";
+    throw new Error(`API ${res.status}: ${msg}`);
   }
   const ct = res.headers.get("content-type") || "";
   return ct.includes("application/json") ? res.json() : res.text();
 }
 
 /* ============== Estado ============== */
-let LISTA = [];          // cache da lista atual
-let EDIT_ID = null;      // id em edição ou null
-let HIST_VIEW = [];      // cache do histórico visível no modal
-let REPORT_VIEW = [];    // cache do relatório visível no modal
+let LISTA = [];      // cache da lista atual
+let EDIT_ID = null;  // id em edição
+let HIST_VIEW = [];  // histórico (modal)
+let REPORT_VIEW = [];// relatório (modal)
 
 /* ============== Autenticação ============== */
 function setTokenFromPIN(pin) {
   API_TOKEN = pin;
-  // opcional: manter só na sessão do navegador
   sessionStorage.setItem("adminToken", pin);
 }
-
 function clearToken() {
   API_TOKEN = null;
   sessionStorage.removeItem("adminToken");
 }
 
 /* ============== Inicialização da UI ============== */
-document.addEventListener("DOMContentLoaded", () => {
-  // Elementos
+document.addEventListener("DOMContentLoaded", async () => {
   const lock = $("#lock");
   const app = $("#app");
   const pinInput = $("#pinInput");
   const pinConfirm = $("#pinConfirm");
   const lockFirst = $("#lockFirst");
 
+  // Clique da tabela: registrar UMA única vez
+  $("#tbody").addEventListener("click", onTabelaClick);
+
+  // Toolbar / modais
+  ligarControles();
+  ligarEditor();
+
   const saved = sessionStorage.getItem("adminToken");
   if (saved) {
     setTokenFromPIN(saved);
     lock.style.display = "none";
     app.style.display = "block";
-    iniciar();
+    await iniciarComHealthCheck();
   } else {
     lockFirst.style.display = "block";
     lock.style.display = "flex";
     app.style.display = "none";
   }
 
-  pinConfirm.addEventListener("click", () => {
+  pinConfirm.addEventListener("click", async () => {
     const pin = pinInput.value.trim();
     if (!pin) return toast("Informe um token (PIN).");
     setTokenFromPIN(pin);
     lock.style.display = "none";
     app.style.display = "block";
-    iniciar();
+    await iniciarComHealthCheck();
   });
 });
 
-/* ============== Boot ============== */
+/* ============== Boot + Health Check ============== */
+async function iniciarComHealthCheck() {
+  try {
+    await apiFetch("/health");
+  } catch (e) {
+    toast(
+      "Não consegui acessar /health. Motivos comuns:\n" +
+      "- API offline ou porta errada;\n" +
+      "- CORS não liberado para seu domínio;\n" +
+      "- Frontend em HTTPS e API em HTTP (mixed content);\n" +
+      "- Token incorreto se sua API exigir auth nesse endpoint."
+    );
+    console.error(e);
+  } finally {
+    iniciar();
+  }
+}
+
 function iniciar() {
-  ligarControles();
-  ligarEditor();
   carregarEExibir();
 }
 
@@ -141,6 +171,7 @@ function ligarControles() {
     $("#f_nome").focus();
   });
 
+  // Toolbar superior
   $("#btnExport").addEventListener("click", exportarProdutosJSON);
   $("#btnImport").addEventListener("click", importarProdutosJSON);
   $("#btnExportHist").addEventListener("click", exportarHistoricoCSV);
@@ -185,7 +216,7 @@ async function carregarEExibir() {
     atualizarStatus(LISTA);
   } catch (err) {
     console.error(err);
-    toast("Falha ao carregar produtos.");
+    toast("Falha ao carregar produtos (veja o console).");
   }
 }
 
@@ -197,7 +228,7 @@ function renderTabela(arr) {
 
     const precoUnit = getUnitPrice(p);
     const custoUnit = getUnitCost(p);
-    const margemUnit = precoUnit != null && custoUnit != null
+    const margemUnit = (precoUnit != null && custoUnit != null)
       ? (precoUnit - custoUnit)
       : (p.margem ?? null);
 
@@ -217,11 +248,9 @@ function renderTabela(arr) {
     `;
     tb.appendChild(tr);
   }
-
-  // Delegação de eventos para ações
-  tb.addEventListener("click", onTabelaClick);
 }
 
+// Delegação: registrado UMA vez em DOMContentLoaded
 function onTabelaClick(ev) {
   const btn = ev.target.closest("button[data-acao]");
   if (!btn) return;
@@ -273,33 +302,23 @@ function getUnitCost(p) {
 
 /* ============== Editor ============== */
 function ligarEditor() {
-  // Toggle tamanhos vs preço fixo
   $("#f_usar_tamanhos").addEventListener("change", syncTamanhosUI);
 
-  // Previsualização via mudança manual de URL
   $("#f_imagem").addEventListener("input", () => {
     const url = $("#f_imagem").value.trim();
     const prev = $("#preview");
-    if (url) {
-      prev.src = url;
-      prev.style.display = "block";
-    } else {
-      prev.removeAttribute("src");
-      prev.style.display = "none";
-    }
+    if (url) { prev.src = url; prev.style.display = "block"; }
+    else { prev.removeAttribute("src"); prev.style.display = "none"; }
   });
 
-  // Drag & Drop / clique
   prepararUploadImagem();
 
-  // Salvar / Limpar
   $("#btnSave").addEventListener("click", salvarProdutoDoEditor);
   $("#btnClear").addEventListener("click", () => {
     EDIT_ID = null;
     limparEditor();
   });
 
-  // Estado inicial
   syncTamanhosUI();
 }
 
@@ -315,9 +334,7 @@ function abrirParaEdicao(p) {
   $("#f_usar_tamanhos").checked = !!p.usar_tamanhos;
 
   if (p.usar_tamanhos && Array.isArray(p.tamanhos)) {
-    const t1 = p.tamanhos[0];
-    const t2 = p.tamanhos[1];
-    const t3 = p.tamanhos[2];
+    const [t1, t2, t3] = p.tamanhos;
     $("#f_l_t1").value = t1?.rotulo || "";
     $("#f_p_t1").value = t1?.preco ?? "";
     $("#f_c_t1").value = t1?.custo ?? "";
@@ -342,13 +359,8 @@ function abrirParaEdicao(p) {
   }
 
   const prev = $("#preview");
-  if (p.imagem_url) {
-    prev.src = p.imagem_url;
-    prev.style.display = "block";
-  } else {
-    prev.removeAttribute("src");
-    prev.style.display = "none";
-  }
+  if (p.imagem_url) { prev.src = p.imagem_url; prev.style.display = "block"; }
+  else { prev.removeAttribute("src"); prev.style.display = "none"; }
 
   syncTamanhosUI();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -392,10 +404,7 @@ function prepararUploadImagem() {
     hidden.value = "";
   });
 
-  drop.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    drop.classList.add("drag");
-  });
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
   drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
   drop.addEventListener("drop", async (e) => {
     e.preventDefault();
@@ -413,12 +422,11 @@ async function uploadImagem(file) {
     const res = await apiFetch(`/upload`, { method: "POST", body: fd });
     const url = (res.url || "").startsWith("http") ? res.url : API_BASE + res.url;
     $("#f_imagem").value = url;
-    const prev = $("#preview");
-    prev.src = url;
-    prev.style.display = "block";
+    $("#preview").src = url;
+    $("#preview").style.display = "block";
   } catch (err) {
     console.error(err);
-    toast("Falha no upload.");
+    toast("Falha no upload (veja o console).");
   }
 }
 
@@ -427,34 +435,32 @@ async function salvarProdutoDoEditor() {
 
   const payload = {
     nome: $("#f_nome").value.trim(),
-    categoria: $("#f_categoria").value.trim() || null,
-    volume: $("#f_volume").value.trim() || null,
-    imagem_url: $("#f_imagem").value.trim() || null,
+    categoria: ($("#f_categoria").value.trim() || null),
+    volume: ($("#f_volume").value.trim() || null),
+    imagem_url: ($("#f_imagem").value.trim() || null),
     estoque: parseInt($("#f_estoque").value || "0", 10),
     promocao: $("#f_promo").checked,
-    destaque: $("#f_destaque").value.trim() || null,
+    destaque: ($("#f_destaque").value.trim() || null),
     usar_tamanhos,
     preco: usar_tamanhos ? null : parseFloat($("#f_preco").value || "0"),
     custo: usar_tamanhos ? null : parseFloat($("#f_custo").value || "0"),
-    tamanhos: usar_tamanhos
-      ? [
-          ...($("#f_l_t1").value ? [{
-            rotulo: $("#f_l_t1").value, 
-            preco: parseFloat($("#f_p_t1").value || "0"),
-            custo: parseFloat($("#f_c_t1").value || "0"),
-          }] : []),
-          ...($("#f_l_t2").value ? [{
-            rotulo: $("#f_l_t2").value, 
-            preco: parseFloat($("#f_p_t2").value || "0"),
-            custo: parseFloat($("#f_c_t2").value || "0"),
-          }] : []),
-          ...($("#f_l_t3").value ? [{
-            rotulo: $("#f_l_t3").value, 
-            preco: parseFloat($("#f_p_t3").value || "0"),
-            custo: parseFloat($("#f_c_t3").value || "0"),
-          }] : []),
-        ]
-      : []
+    tamanhos: usar_tamanhos ? [
+      ...($("#f_l_t1").value ? [{
+        rotulo: $("#f_l_t1").value,
+        preco: parseFloat($("#f_p_t1").value || "0"),
+        custo: parseFloat($("#f_c_t1").value || "0"),
+      }] : []),
+      ...($("#f_l_t2").value ? [{
+        rotulo: $("#f_l_t2").value,
+        preco: parseFloat($("#f_p_t2").value || "0"),
+        custo: parseFloat($("#f_c_t2").value || "0"),
+      }] : []),
+      ...($("#f_l_t3").value ? [{
+        rotulo: $("#f_l_t3").value,
+        preco: parseFloat($("#f_p_t3").value || "0"),
+        custo: parseFloat($("#f_c_t3").value || "0"),
+      }] : []),
+    ] : []
   };
 
   if (!payload.nome) return toast("Informe o nome do produto.");
@@ -462,16 +468,10 @@ async function salvarProdutoDoEditor() {
 
   try {
     if (EDIT_ID) {
-      await apiFetch(`/products/${EDIT_ID}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
+      await apiFetch(`/products/${EDIT_ID}`, { method: "PUT", body: JSON.stringify(payload) });
       toast("Produto atualizado.");
     } else {
-      await apiFetch(`/products`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      await apiFetch(`/products`, { method: "POST", body: JSON.stringify(payload) });
       toast("Produto criado.");
     }
     EDIT_ID = null;
@@ -479,7 +479,7 @@ async function salvarProdutoDoEditor() {
     await carregarEExibir();
   } catch (err) {
     console.error(err);
-    toast("Falha ao salvar produto.");
+    toast("Falha ao salvar produto (veja o console).");
   }
 }
 
@@ -492,7 +492,7 @@ async function removerProduto(id) {
     await carregarEExibir();
   } catch (err) {
     console.error(err);
-    toast("Falha ao remover produto.");
+    toast("Falha ao remover produto (veja o console).");
   }
 }
 
@@ -618,13 +618,8 @@ function importarProdutosJSON() {
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      if (!Array.isArray(data)) {
-        return toast("O arquivo deve conter um array JSON de produtos.");
-      }
-      await apiFetch(`/import`, {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      if (!Array.isArray(data)) return toast("O arquivo deve conter um array JSON de produtos.");
+      await apiFetch(`/import`, { method: "POST", body: JSON.stringify(data) });
       toast("Importação concluída.");
       await carregarEExibir();
     } catch (err) {
@@ -638,24 +633,13 @@ function importarProdutosJSON() {
 }
 
 /* ============== Modais ============== */
-function abrirModal(sel) {
-  const el = $(sel);
-  if (!el) return;
-  el.style.display = "flex";
-}
-function fecharModal(sel) {
-  const el = $(sel);
-  if (!el) return;
-  el.style.display = "none";
-}
+function abrirModal(sel) { const el = $(sel); if (el) el.style.display = "flex"; }
+function fecharModal(sel) { const el = $(sel); if (el) el.style.display = "none"; }
 
 /* ============== Helpers diversos ============== */
 function debounce(fn, ms = 300) {
   let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn.apply(null, args), ms);
-  };
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null, args), ms); };
 }
 
 function escapeHTML(s) {
